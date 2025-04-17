@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.ERPSystem.mapper.PODetailMapper">
+
+	<!-- 指定された購買注文の明細取得 -->
+	<select id="getPOInfo"
+		resultType="com.example.ERPSystem.entity.PurchaseOrderInfo">
+		SELECT * 
+		FROM purchase_order_info 
+		WHERE 
+			purchase_order_id = #{purchaseOrderID}
+	</select>
+
+	<!-- 指定された購買注文の明細を削除 -->
+	<delete id="deletePOInfo">
+		DELETE 
+		FROM purchase_order_info 
+		WHERE
+			purchase_order_id = #{purchaseOrderID}
+	</delete>
+
+	<!-- 購買注文の明細を一括登録 -->
+	<insert id="insertPOInfoList">
+		INSERT INTO purchase_order_info 
+		(
+			po_detail_id, purchase_order_id,
+			material_id,
+			processing_type, quantity,
+			unit_price, subtotal, thickness,
+			width, length, weight,
+			diameter, outer_diameter, inner_thickness,
+			cutting_size, surface_treatment,
+			specification, create_at,
+			create_clerk_nm, update_at, update_by
+		)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			(
+				#{item.poDetailID}, #{item.purchaseOrderID}, #{item.materialID},
+				#{item.processingType},
+				#{item.quantity},
+				#{item.unitPrice},
+				#{item.subtotal}, #{item.thickness}, #{item.width}, #{item.length},
+				#{item.weight},
+				#{item.diameter}, #{item.outerDiameter},
+				#{item.innerThickness}, #{item.cuttingSize},
+				#{item.surfaceTreatment}, #{item.specification}, #{item.createAt},
+				#{item.createClerkNm}, #{item.updateAt}, #{item.updateBy}
+			)
+		</foreach>
+	</insert>
+
+</mapper>

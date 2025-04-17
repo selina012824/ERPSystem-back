@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.ERPSystem.mapper.OrderMapper">
+
+	<!-- 全ての注文を取得 -->
+	<select id="getAllOrder"
+		resultType="com.example.ERPSystem.entity.Order">
+		SELECT * 
+		FROM orders 
+		ORDER BY create_at DESC
+	</select>
+
+	<!-- 指定された注文を取得 -->
+	<select id="getOrder"
+		resultType="com.example.ERPSystem.entity.Order">
+		SELECT * 
+		FROM orders 
+		WHERE order_id = #{orderID}
+	</select>
+
+	<!-- 注文番号の重複チェック -->
+	<select id="selectOrderIDCount" resultType="int">
+		SELECT
+		COUNT(order_id) 
+		FROM orders 
+		WHERE order_id = #{orderID}
+	</select>
+
+	<!-- 注文を新規作成 -->
+	<insert id="insertOrder"
+		parameterType="com.example.ERPSystem.entity.Order">
+		INSERT INTO orders 
+		(
+			order_id,
+			est_scrap_id,
+			customer_id,
+			order_date,
+			delivery_date,
+			status,
+			subtotal,
+			tax,
+			total_amount,
+			payment,
+			create_at,
+			create_by,
+			update_at,
+			update_by
+		)
+		VALUES 
+		(
+			#{orderID},
+			#{estScrapID},
+			#{customerID},
+			#{orderDate},
+			#{deliveryDate},
+			#{status},
+			#{subtotal},
+			#{tax},
+			#{totalAmount},
+			#{payment},
+			#{createAt},
+			#{createBy},
+			#{updateAt},
+			#{updateBy}
+		)
+	</insert>
+
+	<!-- 注文を編集 -->
+	<update id="editOrder" parameterType="com.example.ERPSystem.vo.EditOrderVO">
+		UPDATE orders
+		SET
+			customer_id = #{customerID},
+			order_date = #{orderDate},
+			delivery_date = #{deliveryDate},
+			subtotal =
+			#{subtotal},
+			tax = #{tax},
+			total_amount = #{totalAmount},
+			payment=
+			#{payment},
+			update_at = #{updateAt},
+			update_by = #{updateBy}
+		WHERE
+			order_id = #{orderID}
+	</update>
+
+	<!-- 注文の複数条件検索 -->
+	<select id="multiSearch"
+		parameterType="com.example.ERPSystem.vo.MultiSearchOrderReq"
+		resultType="com.example.ERPSystem.entity.Order">
+		SELECT *
+		FROM orders
+		<where>
+			<if test="orderID != null and orderID != ''">
+				AND order_id LIKE CONCAT('%', #{orderID}, '%')
+			</if>
+
+			<if test="estScrapID != null and estScrapID != ''">
+				AND est_scrap_id LIKE CONCAT('%', #{estScrapID}, '%')
+			</if>
+
+			<if test="customerID != null and customerID != ''">
+				AND customer_id LIKE CONCAT('%', #{customerID}, '%')
+			</if>
+
+			<if test="status != null and status != ''">
+				AND status = #{status}
+			</if>
+
+			<if test="orderStartDate != null and orderEndDate != null">
+				AND order_date BETWEEN #{orderStartDate} AND
+				#{orderEndDate}
+			</if>
+
+			<if test="deliveryStartDate != null and deliveryEndDate != null">
+				AND delivery_date BETWEEN #{deliveryStartDate} AND
+				#{deliveryEndDate}
+			</if>
+		</where>
+		ORDER BY create_at DESC
+	</select>
+
+	<!-- 注文を中止 -->
+	<update id="endOrder">
+		UPDATE orders 
+		SET status='中止' 
+		WHERE
+			order_id=#{orderID}
+	</update>
+
+	<!-- 注文を完了 -->
+	<update id="finishOrder">
+		UPDATE orders 
+		SET status='完了' 
+		WHERE
+			order_id=#{orderID}
+	</update>
+
+	<!-- 購買注文を作成 -->
+	<update id="setPO">
+		UPDATE orders 
+		SET status='調達処理中' 
+		WHERE
+			order_id=#{orderID}
+	</update>
+
+	<!-- 注文番号一覧を取得 -->
+	<select id="getOrderID" resultType="String">
+		SELECT order_id 
+		FROM orders
+		ORDER BY create_at DESC
+	</select>
+
+</mapper>
+	
