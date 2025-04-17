@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.ERPSystem.mapper.QuotationMapper">
+
+	<!-- 全見積書データ取得 -->
+	<select id="getAllQuotation"
+		resultType="com.example.ERPSystem.entity.Quotation">
+		SELECT * 
+		FROM quotation 
+		ORDER BY create_at DESC
+	</select>
+
+	<!-- 指定見積書データ取得 -->
+	<select id="getQuotation"
+		resultType="com.example.ERPSystem.entity.Quotation">
+		SELECT * 
+		FROM quotation 
+		WHERE quotation_id = #{quotationID}
+	</select>
+
+	<!-- 見積番号重複確認 -->
+	<select id="selectQuotationIDCount" resultType="int">
+		SELECT
+		COUNT(quotation_id) 
+		FROM quotation 
+		WHERE quotation_id = #{quotationID}
+	</select>
+
+	<!-- 見積書新規登録 -->
+	<insert id="insertQuotation"
+		parameterType="com.example.ERPSystem.entity.Quotation">
+		INSERT INTO quotation 
+		(
+			quotation_id, quotation_date,
+			quotation_type, customer_id, customer_name,
+			customer_nickname,
+			person_in_response, contactor, customer_phone,
+			customer_cellphone,
+			customer_faxnumber, customer_taxnumber, customer_address,
+			ship_address, invoice_address,
+			payment, subtotal, tax, total,
+			total_amount, validity_period, remark,
+			if_set_order, set_order_time,
+			create_at, create_clerk_nm, update_at,
+			update_by
+		) 
+			VALUES 
+		(
+			#{quotationID}, #{quotationDate}, #{quotationType}, #{customerID},
+			#{customerName},
+			#{customerNickName}, #{personInResponse},
+			#{contactor},
+			#{customerPhone}, #{customerCellphone},
+			#{customerFaxNumber}, #{customerTaxNumber}, #{customerAddress},
+			#{shipAddress},
+			#{invoiceAddress},
+			#{payment}, #{subtotal}, #{tax},
+			#{total}, #{totalAmount}, #{validityPeriod},
+			#{remark},
+			#{ifSetOrder},
+			#{setOrderTime}, #{createAt}, #{createClerkNm}, #{updateAt},
+			#{updateBy}
+		)
+	</insert>
+
+	<!-- 見積書更新 -->
+	<update id="editQuotation" parameterType="com.example.ERPSystem.vo.EditQuotationVO">
+		UPDATE quotation
+		SET
+			quotation_date = #{quotationDate},
+			quotation_type = #{quotationType},
+			customer_id = #{customerID},
+			customer_name = #{customerName},
+			customer_nickname =
+			#{customerNickName},
+			person_in_response = #{personInResponse},
+			contactor = #{contactor},
+			customer_phone = #{customerPhone},
+			customer_cellphone = #{customerCellphone},
+			customer_faxnumber =
+			#{customerFaxNumber},
+			customer_taxnumber = #{customerTaxNumber},
+			customer_address = #{customerAddress},
+			ship_address = #{shipAddress},
+			invoice_address = #{invoiceAddress},
+			payment = #{payment},
+			subtotal =
+			#{subtotal},
+			tax = #{tax},
+			total = #{total},
+			total_amount =
+			#{totalAmount},
+			validity_period = #{validityPeriod},
+			remark = #{remark},
+			update_at = #{updateAt},
+			update_by = #{updateBy}
+		WHERE 
+			quotation_id =#{quotationID}
+	</update>
+
+
+	<!-- 見積書条件検索 -->
+	<select id="multiSearch"
+		resultType="com.example.ERPSystem.entity.Quotation"
+		parameterType="com.example.ERPSystem.vo.MultiSearchQuotationReq">
+		SELECT * 
+		FROM quotation
+		<where>
+			<if test="quotationID != null and quotationID != ''">
+				AND quotation_id LIKE CONCAT('%', #{quotationID}, '%')
+			</if>
+			<if test="customerID != null and customerID != ''">
+				AND customer_id LIKE CONCAT('%', #{customerID}, '%')
+			</if>
+			<if test="quotationType != null and quotationType != ''">
+				AND quotation_type LIKE CONCAT('%', #{quotationType},
+				'%')
+			</if>
+			<if test="quotationStartDate != null and quotationEndDate != null">
+				AND quotation_date BETWEEN #{quotationStartDate} AND
+				#{quotationEndDate}
+			</if>
+			<if test="validStartDate != null and validEndDate != null">
+				AND validity_period BETWEEN #{validStartDate} AND
+				#{validEndDate}
+			</if>
+		</where>
+		ORDER BY create_at DESC
+	</select>
+
+	<!-- 注文作成 -->
+	<update id="setOrder">
+		UPDATE quotation 
+		SET 
+			if_set_order = '1' 
+		WHERE
+			quotation_id = #{quotationID}
+	</update>
+
+</mapper>

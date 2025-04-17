@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.example.ERPSystem.mapper.OrderDetailMapper">
+
+	<!-- 指定された注文の明細情報を取得 -->
+	<select id="getOrderInfo"
+		resultType="com.example.ERPSystem.entity.OrderInfo">
+		SELECT * 
+		FROM order_info 
+		WHERE order_id = #{orderID}
+	</select>
+
+	<!-- 指定された注文の明細情報を削除 -->
+	<delete id="deleteOrderInfo">
+		DELETE 
+		FROM order_info 
+		WHERE order_id = #{orderID}
+	</delete>
+
+	<!-- 複数の注文明細を登録 -->
+	<insert id="insertOrderInfoList">
+		INSERT INTO order_info 
+		(
+			order_detail_id, order_id, material_id,
+			processing_type, quantity,
+			unit_price, subtotal, thickness, width,
+			length, weight,
+			diameter, outer_diameter, inner_thickness,
+			cutting_size,
+			surface_treatment, specification, create_at,
+			create_clerk_nm, update_at, update_by
+		)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			(
+				#{item.orderDetailID}, #{item.orderID}, #{item.materialID},
+				#{item.processingType},
+				#{item.quantity},
+				#{item.unitPrice},
+				#{item.subtotal}, #{item.thickness}, #{item.width}, #{item.length},
+				#{item.weight},
+				#{item.diameter}, #{item.outerDiameter},
+				#{item.innerThickness}, #{item.cuttingSize},
+				#{item.surfaceTreatment}, #{item.specification}, #{item.createAt},
+				#{item.createClerkNm}, #{item.updateAt}, #{item.updateBy}
+			)
+		</foreach>
+	</insert>
+
+	<!-- 指定された明細番号の注文明細を取得 -->
+	<select id="getSelectOrderInfo" resultType="com.example.ERPSystem.entity.OrderInfo">
+		SELECT * 
+		FROM order_info 
+		WHERE order_id = #{orderID} 
+		AND order_detail_id 
+		IN
+		<foreach collection="orderInfoList" item="id" open="("
+			separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
+</mapper>
