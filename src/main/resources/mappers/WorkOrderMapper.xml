@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.example.ERPSystem.mapper.WorkOrderMapper">
+  
+  	<!-- 全作業指示書を取得 -->
+	<select id="getAllWorkOrder"
+		resultType="com.example.ERPSystem.entity.WorkOrder">
+		SELECT * 
+		FROM work_orders 
+		ORDER BY created_at DESC
+	</select>
+	
+	<!-- 指定された作業指示書を取得 -->
+	<select id="getWorkOrder" resultType="com.example.ERPSystem.entity.WorkOrder">
+		SELECT * 
+		FROM work_orders 
+		WHERE work_order_id = #{workOrderID}
+	</select>
+  
+  	<!-- 作業指示書番号の重複チェック -->
+	<select id="selectWorkOrderIDCount" resultType="int">
+		SELECT COUNT(work_order_id) 
+		FROM work_orders
+		WHERE work_order_id = #{workOrderID}
+	</select>
+	
+	  <!-- 指定注文に作業指示書が既にあるかチェック -->
+	<select id="selectOrderIDCount" resultType="int">
+		SELECT COUNT(order_id) 
+		FROM work_orders
+		WHERE order_id = #{orderID}
+	</select>
+	
+	<!-- 作業指示書の新規作成 -->
+	<insert id="insertWorkOrder" parameterType="com.example.ERPSystem.entity.WorkOrder">
+    INSERT INTO work_orders 
+    (
+        work_order_id,
+        order_id,
+        order_detail_id,
+        status,
+        planned_start_date,
+        planned_end_date,
+        actual_start_date,
+        actual_end_date,
+        created_at,
+        created_by,
+        updated_at,
+        updated_by
+    )
+    VALUES 
+    (
+        #{workOrderID},
+        #{orderID},
+        #{orderDetailID},
+        #{status},
+        #{plannedStartDate},
+        #{plannedEndDate},
+        #{actualStartDate},
+        #{actualEndDate},
+        #{createdAt},
+        #{createdBy},
+        #{updatedAt},
+        #{updatedBy}
+    )
+    </insert>
+    
+    <!-- 作業指示書の編集 -->
+    <update id="editWorkOrder" parameterType="com.example.ERPSystem.vo.EditWorkOrderVO">
+    UPDATE work_orders
+    SET
+	    status = #{status},
+	    planned_start_date = #{plannedStartDate},
+	    planned_end_date = #{plannedEndDate},
+	    actual_start_date = #{actualStartDate},
+	    actual_end_date = #{actualEndDate},
+	    updated_at = #{updatedAt},
+	    updated_by = #{updatedBy}
+    WHERE
+    	work_order_id = #{workOrderID}
+    </update>
+    
+    <!-- 複数条件で作業指示書を検索 -->
+	<select id="multiSearch"
+		parameterType="com.example.ERPSystem.vo.MultiSearchWorkOrderReq"
+		resultType="com.example.ERPSystem.entity.WorkOrder">
+		SELECT *
+		FROM work_orders
+		<where>
+			<if test="workOrderID != null and workOrderID != ''">
+				AND work_order_id LIKE CONCAT('%', #{workOrderID}, '%')
+			</if>
+			<if test="orderID != null and orderID != ''">
+				AND order_id LIKE CONCAT('%',
+				#{orderID},
+				'%')
+			</if>
+			<if test="status != null and status != ''">
+				AND status = #{status}
+			</if>
+			<if test="plannedStartDateStart != null and plannedStartDateEnd != null">
+				AND planned_start_date BETWEEN #{plannedStartDateStart} AND
+				#{plannedStartDateEnd}
+			</if>
+			<if test="plannedEndDateStart != null and plannedEndDateEnd != null">
+				AND planned_end_date BETWEEN #{plannedEndDateStart} AND
+				#{plannedEndDateEnd}
+			</if>
+		</where>
+		ORDER BY created_at DESC
+	</select>
+	
+	<!-- 作業指示書を中止に更新 -->
+	<update id="endWorkOrder">
+		UPDATE work_orders 
+		SET status='中止' 
+		WHERE
+			work_order_id = #{workOrderID}
+	</update>
+
+	<!-- 作業指示書を完了に更新 -->
+	<update id="finishWorkOrder">
+		UPDATE work_orders 
+		SET status='完了' 
+		WHERE
+			work_order_id = #{workOrderID}
+	</update>
+  
+  </mapper>
